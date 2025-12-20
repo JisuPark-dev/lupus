@@ -1,3 +1,7 @@
+import type { LogType, LogData } from './logs';
+import type { MedicationCategory } from './medications';
+import type { UserHospital } from './hospitals';
+
 export interface Message {
   id: number;
   content: string;
@@ -75,6 +79,126 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      health_logs: {
+        Row: {
+          id: string;
+          member_id: number;
+          log_date: string;
+          log_type: LogType;
+          data: LogData;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          member_id: number;
+          log_date: string;
+          log_type: LogType;
+          data?: LogData;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          member_id?: number;
+          log_date?: string;
+          log_type?: LogType;
+          data?: LogData;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'health_logs_member_id_fkey';
+            columns: ['member_id'];
+            referencedRelation: 'members';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      medications: {
+        Row: {
+          id: string;
+          member_id: number;
+          name: string;
+          category: MedicationCategory;
+          dose: string | null;
+          frequency: string | null;
+          start_date: string;
+          end_date: string | null;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          member_id: number;
+          name: string;
+          category: MedicationCategory;
+          dose?: string | null;
+          frequency?: string | null;
+          start_date: string;
+          end_date?: string | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          member_id?: number;
+          name?: string;
+          category?: MedicationCategory;
+          dose?: string | null;
+          frequency?: string | null;
+          start_date?: string;
+          end_date?: string | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'medications_member_id_fkey';
+            columns: ['member_id'];
+            referencedRelation: 'members';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      user_hospitals: {
+        Row: UserHospital;
+        Insert: {
+          id?: string;
+          member_id: number;
+          name: string;
+          start_date: string;
+          end_date?: string | null;
+          is_primary?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          member_id?: number;
+          name?: string;
+          start_date?: string;
+          end_date?: string | null;
+          is_primary?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'user_hospitals_member_id_fkey';
+            columns: ['member_id'];
+            referencedRelation: 'members';
+            referencedColumns: ['id'];
+          }
+        ];
       };
     };
     Views: {
