@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import type { Database } from '@/types/database';
 
 interface KakaoTokenResponse {
   access_token: string;
@@ -118,7 +117,7 @@ export async function GET(request: NextRequest) {
 
     // 4. Supabase 클라이언트 생성
     const cookieStore = await cookies();
-    const supabase = createServerClient<Database>(
+    const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
