@@ -99,13 +99,10 @@ export default function LogDetail({
 
       {/* 버튼 */}
       <div className="flex gap-3 pt-4">
-        <Button variant="secondary" fullWidth onClick={onClose}>
-          닫기
-        </Button>
-        <Button variant="ghost" onClick={onEdit}>
+        <Button variant="secondary" fullWidth onClick={onEdit}>
           수정
         </Button>
-        <Button variant="danger" onClick={onDelete} disabled={isDeleting}>
+        <Button variant="danger" fullWidth onClick={onDelete} disabled={isDeleting}>
           {isDeleting ? '삭제 중...' : '삭제'}
         </Button>
       </div>
