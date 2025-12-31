@@ -37,6 +37,13 @@ export default function SettingsPage() {
 
   const today = formatDate(new Date());
 
+  // 페이지 떠날 때 overflow 복원
+  useEffect(() => {
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
   // 데이터 로드
   useEffect(() => {
     const fetchData = async () => {
