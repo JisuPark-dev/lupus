@@ -11,6 +11,7 @@ import {
 import Modal from '@/components/ui/Modal';
 import HospitalList from '@/components/settings/HospitalList';
 import HospitalForm from '@/components/settings/HospitalForm';
+import { usePushNotification } from '@/components/PushNotificationProvider';
 import type { HealthLog } from '@/types/logs';
 import type { Medication } from '@/types/medications';
 import type { UserHospital } from '@/types/hospitals';
@@ -23,7 +24,10 @@ export default function SettingsPage() {
   const [hospitals, setHospitals] = useState<UserHospital[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isRequestingPush, setIsRequestingPush] = useState(false);
+  const [isSendingTestPush, setIsSendingTestPush] = useState(false);
   const router = useRouter();
+  const { fcmToken, isSupported, requestPermission } = usePushNotification();
 
   // 병원 관련 상태
   const [hospitalModalMode, setHospitalModalMode] = useState<HospitalModalMode>('none');
@@ -202,6 +206,49 @@ export default function SettingsPage() {
     }
   };
 
+  // 푸시 알림 권한 요청 및 토큰 저장
+  const handleRequestPushPermission = async () => {
+    setIsRequestingPush(true);
+    try {
+      await requestPermission();
+    } finally {
+      setIsRequestingPush(false);
+    }
+  };
+
+  // FCM 토큰이 생성되면 서버에 저장
+  useEffect(() => {
+    if (fcmToken) {
+      fetch('/api/fcm-tokens', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: fcmToken }),
+      }).catch(console.error);
+    }
+  }, [fcmToken]);
+
+  // 서버를 통한 푸시 알림 테스트
+  const handleTestPush = async () => {
+    if (!fcmToken) {
+      alert('먼저 알림 권한을 허용해주세요.');
+      return;
+    }
+
+    setIsSendingTestPush(true);
+    try {
+      const res = await fetch('/api/push/test', { method: 'POST' });
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || '푸시 알림 전송에 실패했습니다.');
+      }
+    } catch {
+      alert('푸시 알림 전송에 실패했습니다.');
+    } finally {
+      setIsSendingTestPush(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
@@ -214,6 +261,40 @@ export default function SettingsPage() {
     <div className="space-y-6">
       {/* 헤더 */}
       <h1 className="text-xl font-bold text-gray-900">설정</h1>
+
+      {/* 푸시 알림 */}
+      {isSupported && (
+        <section className="rounded-xl bg-white p-4 shadow-sm">
+          <h2 className="mb-4 text-lg font-semibold text-gray-900">푸시 알림</h2>
+          <div className="space-y-3">
+            {!fcmToken ? (
+              <button
+                onClick={handleRequestPushPermission}
+                disabled={isRequestingPush}
+                className="w-full rounded-lg bg-violet-600 py-3 font-medium text-white transition-colors hover:bg-violet-700 disabled:opacity-50"
+              >
+                {isRequestingPush ? '권한 요청 중...' : '알림 권한 허용하기'}
+              </button>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 rounded-lg bg-green-50 p-3 text-sm text-green-700">
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  알림이 활성화되었습니다
+                </div>
+                <button
+                  onClick={handleTestPush}
+                  disabled={isSendingTestPush}
+                  className="w-full rounded-lg bg-violet-100 py-3 font-medium text-violet-700 transition-colors hover:bg-violet-200 disabled:opacity-50"
+                >
+                  {isSendingTestPush ? '전송 중...' : '테스트 알림 보내기 (Hello World)'}
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* 내 병원 */}
       <section className="rounded-xl bg-white p-4 shadow-sm">
