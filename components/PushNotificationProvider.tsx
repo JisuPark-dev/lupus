@@ -38,6 +38,11 @@ export function PushNotificationProvider({ children }: Props) {
     };
 
     checkSupport();
+
+    // PWA Service Worker 등록
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(console.error);
+    }
   }, []);
 
   useEffect(() => {
