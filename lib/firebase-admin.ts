@@ -14,7 +14,11 @@ const getFirebaseAdmin = (): admin.app.App | null => {
 
   const projectId = process.env.FIREBASE_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+  // .env에서 따옴표로 감싸져 있을 수 있으므로 제거하고, \n을 실제 줄바꿈으로 변환
+  let privateKey = process.env.FIREBASE_PRIVATE_KEY;
+  if (privateKey) {
+    privateKey = privateKey.replace(/^["']|["']$/g, '').replace(/\\n/g, '\n');
+  }
 
   // 환경 변수가 없으면 null 반환
   if (!projectId || !clientEmail || !privateKey) {
